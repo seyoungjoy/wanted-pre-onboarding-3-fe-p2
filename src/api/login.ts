@@ -1,6 +1,7 @@
 import { BASE_URL } from './const'
 import { getAccessTokenFromLocalStorage, saveAccessTokenToLocalStorage } from '../utils/accessTokenHandler'
 import { UserInfo } from '../types/user'
+import axios from "axios";
 
 type LoginResult = 'success' | 'fail'
 
@@ -27,20 +28,60 @@ export const loginWithToken = async (args: LoginRequest): Promise<LoginResultWit
   // API Spec은 강의 자료를 참고하세요.
   // access_token 발급에 성공한 경우에는 { result: 'success', access_token: string } 형태의 값을 반환하세요.
 
-  return {
-    result: 'fail',
-    access_token: null
+  try {
+    const response = await axios({
+      url:BASE_URL+"/auth/login",
+      method:"post",
+      data:args
+    })
+    // 여기서 에러 핸들링
+    if(response.status === 201){
+      return {
+        result: 'success',
+        access_token: response.data.access_token
+      }
+    } else {
+      return {
+        result: 'fail',
+        access_token: null
+      }
+    }
   }
+  catch (error){
+    return {
+      result: 'fail',
+      access_token: null
+    }
+  }
+
+
 }
 
 export const getCurrentUserInfoWithToken = async (token: string): Promise<UserInfo | null> => {
   // TODO(2-1): 함수에서 토큰을 직접 주입받아 사용하기
+  try {
+    const response = await axios({
+      url:`${BASE_URL}/profile`,
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    });
+    // ?? response의 성공 처리시 어떤 데이터로 구분하는지 궁금
+    if (response.status === 200){
+      return response.data.userInfo;
+    } else {
+      return null;
+    }
+  } catch (err){
+    // ??catch에서는 어떻게 처리하는게 좋은지 궁금.
+    // 직접 에러를 만들어주는게 좋은건지?
+    return null
+  }
   // GET, `${ BASE_URL }/profile`을 호출하세요.
   // argument로 전달받은 token을 Authorization header에 Bearer token으로 넣어주세요.
   // API Spec은 강의 자료를 참고하세요.
   // 유저 정보 조회에 성공한 경우에는 UserInfo 타입의 값을 반환하세요.
 
-  return null
 }
 
 

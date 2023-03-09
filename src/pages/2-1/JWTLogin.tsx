@@ -19,6 +19,13 @@ const JWTLogin = () => {
     // 로그인 실패시 함수를 종료합니다.
     // 로그인 성공시, getCurrentUserInfoWithToken 함수를 호출하여 userInfo를 가져옵니다.
 
+    const token = await loginWithToken(loginPayload);
+
+    if(token.result === "success"){
+      const userInfo = await getCurrentUserInfoWithToken(token.access_token)
+      setUserInfo(userInfo)
+    }
+
     // TODO: 유저 정보 가져오기 (getCurrentUserInfoWithToken 함수 사용)
     // 유저 정보 가져오기 실패시 함수를 종료합니다.
     // 유저 정보 가져오기 성공시, userInfo 상태를 업데이트합니다.
